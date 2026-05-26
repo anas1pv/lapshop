@@ -1,0 +1,66 @@
+﻿@model lapshop.Domains.TbSettings
+@{
+    ViewData["Title"] = "Site Settings";
+}
+
+<div class="col-12 grid-margin stretch-card">
+    <div class="card bg-glass">
+        <div class="card-body">
+            <h4 class="card-title">🌐 Global Site Settings</h4>
+            <p class="card-description">Update website metadata, contacts, and social links</p>
+            
+            @if (TempData["Success"] != null)
+            {
+                <div class="alert alert-success">@TempData["Success"]</div>
+            }
+
+            <form class="forms-sample" asp-action="Edit" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="SettingsId" />
+
+                <div class="form-group row">
+                    <div class="col-md-6">
+                        <label asp-for="WebsiteName">Website Name</label>
+                        <input type="text" class="form-control text-white bg-dark" asp-for="WebsiteName" placeholder="e.g. LapShop HQ">
+                        <span asp-validation-for="WebsiteName" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="ContactEmail">Contact Email</label>
+                        <input type="email" class="form-control text-white bg-dark" asp-for="ContactEmail" placeholder="info@lapshop.com">
+                        <span asp-validation-for="ContactEmail" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="form-group row">
+                    <div class="col-md-6">
+                        <label asp-for="ContactPhone">Contact Phone</label>
+                        <input type="text" class="form-control text-white bg-dark" asp-for="ContactPhone" placeholder="+201xxxxxxxxx">
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="Address">Office Address</label>
+                        <input type="text" class="form-control text-white bg-dark" asp-for="Address" placeholder="Alexandria, Egypt">
+                    </div>
+                </div>
+
+                <h5 class="mt-4 mb-3 text-muted">Social Media Links</h5>
+                <div class="form-group row">
+                    <div class="col-md-4">
+                        <label asp-for="FacebookLink">Facebook URL</label>
+                        <input type="text" class="form-control text-white bg-dark" asp-for="FacebookLink">
+                    </div>
+                    <div class="col-md-4">
+                        <label asp-for="TwitterLink">Twitter URL</label>
+                        <input type="text" class="form-control text-white bg-dark" asp-for="TwitterLink">
+                    </div>
+                    <div class="col-md-4">
+                        <label asp-for="InstagramLink">Instagram URL</label>
+                        <input type="text" class="form-control text-white bg-dark" asp-for="InstagramLink">
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary mr-2">Save Settings</button>
+                <a href="/admin/Home" class="btn btn-dark">Cancel</a>
+            </form>
+        </div>
+    </div>
+</div>

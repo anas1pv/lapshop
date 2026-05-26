@@ -182,10 +182,7 @@ namespace lapshop.Controllers
         }
 
         [Authorize]
-        public IActionResult AccountDetails()
-        {
-            return View();
-        }
+
         public IActionResult AccessDenied()
         {
             return View();
@@ -214,7 +211,7 @@ namespace lapshop.Controllers
             var code = await _userManager.GeneratePasswordResetTokenAsync(user);
             var validCode = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
             var callbackUrl = Url.Action("ResetPassword", "Users", new { code = validCode, email = user.Email }, protocol: HttpContext.Request.Scheme);
-            
+
             var emailBody = $"<h3>Reset Your Password - LapShop</h3><p>Please reset your password by <a href='{callbackUrl}'>clicking here</a>.</p>";
             await SendEmail(user.Email, "Reset Password - LapShop", emailBody);
 
@@ -258,6 +255,102 @@ namespace lapshop.Controllers
                 ModelState.AddModelError("", error.Description);
             }
             return View(model);
+        }
+        [HttpGet]
+        [Authorize]
+        public async Task<IActionResult> AccountDetails()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return RedirectToAction("Login");
+
+            var roles = await _userManager.GetRolesAsync(user);
+
+            var model = new ClientProfileViewModel
+            {
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Email = user.Email,
+                Role = roles.FirstOrDefault() ?? "Customer",
+                IsEmailConfirmed = user.EmailConfirmed
+            };
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [Authorize]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateProfile(ClientProfileViewModel model)
+        {
+            if (!ModelState.IsValid) return View("AccountDetails", model);
+
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return NotFound();
+
+            user.FirstName = model.FirstName;
+            user.LastName = model.LastName;
+
+            if (user.Email != model.Email)
+            {
+                user.Email = model.Email;
+                user.UserName = model.Email;
+                user.EmailConfirmed = false; // إعادة التحقق إذا لزم الأمر
+            }
+
+            var result = await _userManager.UpdateAsync(user);
+            if (result.Succeeded)
+            {
+                TempData["SuccessMessage"] = "Profile updated successfully!";
+                await _signInManager.RefreshSignInAsync(user);
+                return RedirectToAction("AccountDetails");
+            }
+
+            foreach (var error in result.Errors)
+            {
+                ModelState.AddModelError("", error.Description);
+            }
+            return View("AccountDetails", model);
+        }
+
+        [HttpPost]
+        [Authorize]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ChangePassword(ClientChangePasswordViewModel model)
+        {
+            if (!ModelState.IsValid) return View("AccountDetails");
+
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return RedirectToAction("Login");
+
+            var result = await _userManager.ChangePasswordAsync(user, model.CurrentPassword, model.NewPassword);
+            if (result.Succeeded)
+            {
+                TempData["SuccessMessage"] = "Password changed successfully!";
+                await _signInManager.RefreshSignInAsync(user);
+                return RedirectToAction("AccountDetails");
+            }
+
+            foreach (var error in result.Errors)
+                ModelState.AddModelError("", error.Description);
+
+            return View("AccountDetails");
+        }
+
+        // الـ View Models المطلوبة
+        public class ClientProfileViewModel
+        {
+            public string FirstName { get; set; }
+            public string LastName { get; set; }
+            public string Email { get; set; }
+            public string Role { get; set; }
+            public bool IsEmailConfirmed { get; set; }
+        }
+
+        public class ClientChangePasswordViewModel
+        {
+            public string CurrentPassword { get; set; }
+            public string NewPassword { get; set; }
+            public string ConfirmPassword { get; set; }
         }
     }
 }

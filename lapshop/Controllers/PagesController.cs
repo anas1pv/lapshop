@@ -19,5 +19,7 @@ namespace lapshop.Controllers
             ViewBag.Title = page.Title;
             return View(page);
         }
+
     }
+
 }
