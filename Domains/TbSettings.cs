@@ -1,7 +1,10 @@
-﻿namespace lapshop.Domains
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace lapshop.Domains
 {
     public class TbSettings
     {
+        [Key]
         public int SettingsId { get; set; }
         public string ContactEmail { get; set; }
 
