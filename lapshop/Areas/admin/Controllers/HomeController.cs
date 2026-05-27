@@ -48,10 +48,10 @@ namespace lapshop.Areas.admin.Controllers
                 .Select(i => new RecentOrderViewModel
                 {
                     InvoiceId = i.InvoiceId,
-                    InvoiceDate = i.InvoiceDate,
-                    CustomerName = _context.Users.Where(u => u.Id == i.CustomerId)
-                                                 .Select(u => u.FirstName + " " + u.LastName)
-                                                 .FirstOrDefault() ?? "Guest Customer",
+                    CustomerName = _context.Users
+    .Where(u => u.Id == i.CustomerId.ToString())
+    .Select(u => u.FirstName + " " + u.LastName)
+    .FirstOrDefault() ?? "Guest Customer",
                     Total = _context.TbSalesInvoiceItems.Where(ii => ii.InvoiceId == i.InvoiceId)
                                                         .Sum(ii => (decimal)ii.Qty * ii.InvoicePrice),
                     Status = "Completed"

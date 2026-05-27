@@ -35,7 +35,7 @@ namespace lapshop.Bl
         {
             try
             {
-                if (settings.Id == 0)
+                if (settings.SettingsId == 0)
                 {
                     context.TbSettings.Add(settings);
                 }
